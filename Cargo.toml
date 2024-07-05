@@ -6,7 +6,16 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0.86"
+chrono = { version = "0.4.38", default-features = false, features = ["alloc", "std", "now", "clock", "serde"] }
+flate2 = "1.0.30"
 http = "1.1.0"
+opendal = { version = "0.47.2", features = ["services-gcs", "layers-tracing", "layers-blocking"] }
+regex-lite = "0.1.6"
 rusqlite = { version = "0.31.0", features = ["bundled"] }
 serde = { version = "1.0.203", features = ["derive", "std"] }
 serde_json = "1.0.118"
+tokio = { version = "1.38.0", features = ["tracing", "rt"] }
+tokio-stream = { version = "0.1.15", features = ["sync"] }
+tracing = "0.1.40"
+tracing-subscriber = "0.3.18"
