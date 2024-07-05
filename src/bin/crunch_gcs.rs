@@ -33,7 +33,10 @@ fn main() {
                 &log_set.name,
                 if crunch_result.is_ok() { "ok" } else { "error" }
             );
-            log_set.complete(crunch_result).await?;
+            let name = log_set.name.clone();
+            if let Err(e) = log_set.complete(crunch_result).await {
+                tracing::error!("error from log set {}: {}", &name, e);
+            }
         }
         Ok(())
     });
