@@ -22,7 +22,11 @@ impl LogSet {
     pub async fn complete(self, status: anyhow::Result<()>) -> anyhow::Result<()> {
         if status.is_ok() {
             // Clean up the object from storage.
-            return self.source.delete_object(&self.name).await;
+            return self
+                .source
+                .delete_object(&self.name)
+                .await
+                .context("failed to delete object: ");
         }
         // Don't clean it up.
         status.with_context(|| format!("in handling object {}: ", &self.name))
