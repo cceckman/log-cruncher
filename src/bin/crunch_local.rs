@@ -3,7 +3,7 @@ use std::fs::File;
 use std::path::Path;
 
 fn main() {
-    let src: &Path = Path::new("quarantine/example.log.gz");
+    let src: &Path = Path::new("quarantine/example2.log.gz");
     let db: &Path = Path::new("quarantine/example.db");
 
     let src = File::open(src).expect("could not open example file");

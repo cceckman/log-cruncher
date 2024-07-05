@@ -164,6 +164,10 @@ where
                 Ok(v.into())
             } else if let Ok(v) = DateTime::<FixedOffset>::parse_from_rfc3339(&s) {
                 Ok(v.into())
+            } else if let Ok(i) = s.parse::<i64>() {
+                DateTime::from_timestamp(i, 0)
+                    .ok_or("error in generating timestamp")
+                    .map_err(serde::de::Error::custom)
             } else {
                 Err(serde::de::Error::custom(
                     "unknown string format for timestamp",
