@@ -17,3 +17,5 @@ serde = { version = "1.0.203", features = ["derive", "std"] }
 serde_json = "1.0.118"
 tokio = { version = "1.38.0", features = ["tracing", "rt"] }
 tokio-stream = { version = "0.1.15", features = ["sync"] }
+tracing = "0.1.40"
+tracing-subscriber = "0.3.18"
