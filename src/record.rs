@@ -14,7 +14,6 @@ use serde::{Deserialize, Deserializer};
 ///
 /// This is specific to my log setup -- these are the fields I have configured.
 #[derive(Debug, Deserialize)]
-#[allow(dead_code)]
 pub struct LogEntry {
     #[serde(rename = "clientIP")]
     client_ip: IpAddr,
