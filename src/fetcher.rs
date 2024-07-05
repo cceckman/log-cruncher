@@ -43,13 +43,13 @@ impl Fetcher {
     }
 
     /// Start the fetch process.
-    /// Buffer at most N log chuncks at a time.
-    pub async fn fetch(self: &Arc<Self>, buffer: ) -> tokio::sync::mpsc::Receiver<anyhow::Result<LogSet>> {
-        let (tx, rx) = 
-
+    /// Buffer at most N log chunks at a time.
+    pub async fn fetch(self: &Arc<Self>, buffer: usize) -> tokio::sync::mpsc::Receiver<anyhow::Result<LogSet>> {
+        let (tx, rx) = tokio::sync::mpsc::channel(buffer);
+        rx
     }
 
-    fn delete_object(&self, object: &name) -> {
+    fn delete_object(&self, object: &name) {
 
     }
 }
