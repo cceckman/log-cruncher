@@ -1,6 +1,7 @@
 //! Fetcher for log entries from backing storage.
 //!
 
+use crate::LogSet;
 use std::sync::Arc;
 
 use anyhow::Context;
@@ -8,14 +9,13 @@ use opendal::{layers::TracingLayer, Operator};
 use tokio::sync::mpsc::Sender;
 use tokio_stream::StreamExt;
 
-/// LogSet is a handle to a set of logs.
-pub struct LogSet {
-    pub name: String,
-    pub data: Vec<u8>,
-    source: Arc<Fetcher>,
+/// Fetches log chunks from a backing store.
+pub struct Fetcher {
+    operator: opendal::Operator,
+    cleanup: bool,
 }
 
-impl LogSet {
+impl<T> LogSet<T> {
     /// Mark this set of logs as processed, successfully or unsuccessfully.
     ///
     /// Returns the original error and/or an error in cleanup.
@@ -31,12 +31,6 @@ impl LogSet {
         // Don't clean it up.
         status.with_context(|| format!("in handling object {}: ", &self.name))
     }
-}
-
-/// Fetches log chunks from a backing store.
-pub struct Fetcher {
-    operator: opendal::Operator,
-    cleanup: bool,
 }
 
 impl Fetcher {
@@ -55,7 +49,7 @@ impl Fetcher {
     pub async fn fetch(
         self: &Arc<Self>,
         buffer: usize,
-    ) -> tokio::sync::mpsc::Receiver<anyhow::Result<LogSet>> {
+    ) -> tokio::sync::mpsc::Receiver<anyhow::Result<LogSet<u8>>> {
         let (tx, rx) = tokio::sync::mpsc::channel(buffer);
         tokio::spawn({
             let fetcher = Arc::clone(self);
@@ -70,7 +64,10 @@ impl Fetcher {
         rx
     }
 
-    async fn fetch_loop(self: Arc<Self>, tx: Sender<anyhow::Result<LogSet>>) -> anyhow::Result<()> {
+    async fn fetch_loop(
+        self: Arc<Self>,
+        tx: Sender<anyhow::Result<LogSet<u8>>>,
+    ) -> anyhow::Result<()> {
         let mut lister = self
             .operator
             .lister("")
@@ -114,7 +111,7 @@ impl Fetcher {
         Ok(())
     }
 
-    async fn fetch_one(self: Arc<Self>, path: &str) -> anyhow::Result<LogSet> {
+    async fn fetch_one(self: Arc<Self>, path: &str) -> anyhow::Result<LogSet<u8>> {
         let rd = self
             .operator
             .reader(path)
