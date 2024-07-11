@@ -198,6 +198,11 @@ impl LogEntry {
             .unwrap()
             .execute([&self.referer])?;
         tx.prepare_cached(
+            "INSERT INTO autonomous_systems (asn) VALUES (?) ON CONFLICT DO NOTHING;",
+        )
+        .unwrap()
+        .execute([&self.asn])?;
+        tx.prepare_cached(
             "INSERT INTO user_agents (user_agent) VALUES (?) ON CONFLICT DO NOTHING;",
         )
         .unwrap()

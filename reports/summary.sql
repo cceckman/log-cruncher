@@ -55,6 +55,7 @@ ORDER BY count DESC;
 .print 'Top scanning ASNs:'
 SELECT
     client_asn
+,   asn_name
 ,   COUNT(*) as count
 FROM r
 WHERE

@@ -89,6 +89,11 @@ impl Cruncher {
                 }
             }
             tracing::info!("crunched {} logsets: {} ok, {} errors", ok + err, ok, err);
+            if let Err(err) = cruncher.asn_catchup().await {
+                tracing::error!("errors in updating ASN table: {}", err);
+            } else {
+                tracing::info!("ASN table up to date");
+            }
             Ok(())
         })
     }

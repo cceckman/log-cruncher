@@ -2,6 +2,7 @@ CREATE TEMP TABLE reqs AS
 SELECT
     requests.response_status as status
 ,   requests.asn as client_asn
+,   autonomous_systems.name as asn_name
 ,   requests.cache_state as cache_state
 ,   requests.response_bytes as size
 ,   requests.request_start_time as time -- in RFC3339 format
@@ -14,6 +15,7 @@ FROM
     LEFT JOIN paths ON requests.url_path = paths.id
     LEFT JOIN referers ON requests.referer = referers.id
     LEFT JOIN user_agents ON requests.user_agent = user_agents.id
+    LEFT JOIN autonomous_systems ON requests.asn = autonomous_systems.asn
 ;
 
 -- and without.
