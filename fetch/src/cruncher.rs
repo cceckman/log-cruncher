@@ -1,7 +1,6 @@
-use std::{io::BufRead, path::Path, sync::Mutex};
+use std::{path::Path, sync::Mutex};
 
 use crate::record::LogEntry;
-use crate::streamhack::CommaHacker;
 use anyhow::Context;
 use rusqlite::Connection;
 
@@ -28,22 +27,11 @@ impl Cruncher {
         })
     }
 
-    /// Add the records from the provided GZipped buffer to the result.
-    pub fn crunch_gz(&self, data: impl BufRead) -> anyhow::Result<()> {
-        // Decompress the record.
-        let cursor = flate2::bufread::GzDecoder::new(data);
-        // ...and get rid of trailing commas at top-level JSON objects. Oops.
-        let cursor = CommaHacker::new(std::io::BufReader::new(cursor));
-        let entries: anyhow::Result<Vec<LogEntry>> = serde_json::Deserializer::from_reader(cursor)
-            .into_iter()
-            .enumerate()
-            .map(|(i, result)| result.with_context(|| format!("JSON parse error in entry {i}")))
-            .collect();
-        let entries = entries?;
-
+    /// Add the entries to the database.
+    pub fn crunch(&self, data: &[LogEntry]) -> anyhow::Result<()> {
         let mut conn = self.conn.lock().unwrap();
         let tx = conn.transaction().context("could not begin transaction")?;
-        for (i, entry) in entries.into_iter().enumerate() {
+        for (i, entry) in data.into_iter().enumerate() {
             entry.store(&tx).with_context(|| format!("in entry {i}"))?;
         }
         tx.commit().context("could not commit transaction")?;

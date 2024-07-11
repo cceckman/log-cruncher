@@ -1,7 +1,7 @@
 //! Fetcher for log entries from backing storage.
 //!
 
-use crate::LogSet;
+use crate::{record::LogEntry, LogSet};
 use std::sync::Arc;
 
 use anyhow::Context;
@@ -49,7 +49,7 @@ impl Fetcher {
     pub async fn fetch(
         self: &Arc<Self>,
         buffer: usize,
-    ) -> tokio::sync::mpsc::Receiver<anyhow::Result<LogSet<u8>>> {
+    ) -> tokio::sync::mpsc::Receiver<anyhow::Result<LogSet<LogEntry>>> {
         let (tx, rx) = tokio::sync::mpsc::channel(buffer);
         tokio::spawn({
             let fetcher = Arc::clone(self);
@@ -66,7 +66,7 @@ impl Fetcher {
 
     async fn fetch_loop(
         self: Arc<Self>,
-        tx: Sender<anyhow::Result<LogSet<u8>>>,
+        tx: Sender<anyhow::Result<LogSet<LogEntry>>>,
     ) -> anyhow::Result<()> {
         let mut lister = self
             .operator
@@ -111,7 +111,7 @@ impl Fetcher {
         Ok(())
     }
 
-    async fn fetch_one(self: Arc<Self>, path: &str) -> anyhow::Result<LogSet<u8>> {
+    async fn fetch_one(self: Arc<Self>, path: &str) -> anyhow::Result<LogSet<LogEntry>> {
         let rd = self
             .operator
             .reader(path)
@@ -121,11 +121,12 @@ impl Fetcher {
             .read(0..)
             .await
             .with_context(|| format!("failed to read object contents {}: ", path))?;
-        Ok(LogSet {
+        let bytes = LogSet {
             name: path.to_string(),
             data: data.to_vec(),
             source: self,
-        })
+        };
+        bytes.try_into()
     }
 
     async fn delete_object(&self, object: &str) -> anyhow::Result<()> {

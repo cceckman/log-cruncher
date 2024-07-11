@@ -6,7 +6,7 @@ mod streamhack;
 use anyhow::Context;
 use record::LogEntry;
 use std::{
-    io::{self, Cursor},
+    io::{self},
     path::{Path, PathBuf},
     sync::Arc,
 };
@@ -37,7 +37,7 @@ impl TryFrom<LogSet<u8>> for LogSet<LogEntry> {
             .map(|(i, result)| result.with_context(|| format!("JSON parse error in entry {i}")))
             .collect();
         Ok(LogSet {
-            data: entries?,
+            data: entries.with_context(|| format!("in log set {}", &value.name))?,
             name: value.name,
             source: value.source,
         })
@@ -61,9 +61,8 @@ impl Cruncher {
             .context("could not initialize fetcher")?;
         let fetcher = Arc::new(fetcher);
 
-        let mut log_sets = rt.block_on(async { fetcher.fetch(10).await });
-        // TODO: May be better to do the decoding in multiple threads--
-        // the JSON parsing can proceed in parallel even if commit-to-the-DB needs to serialize.
+        let mut log_sets = rt.block_on(async { fetcher.fetch(self.concurrency).await });
+
         rt.block_on(async move {
             let mut ok = 0;
             let mut err = 0;
@@ -71,9 +70,8 @@ impl Cruncher {
             while let Some(log_set) = log_sets.recv().await {
                 let log_set = log_set.context("got error in streaming log sets")?;
                 tracing::info!("processing log set {}", &log_set.name);
-                let data = Cursor::new(&log_set.data);
                 let crunch_result = cruncher
-                    .crunch_gz(data)
+                    .crunch(&log_set.data)
                     .with_context(|| format!("error in processing log file {}", log_set.name));
                 tracing::info!(
                     "completed log set {}, result: {}",
