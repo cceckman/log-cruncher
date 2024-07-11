@@ -51,3 +51,15 @@ WHERE r.status >= 400
 GROUP BY r.status, r.url_path
 ORDER BY count DESC;
 
+.print ''
+.print 'Top scanning ASNs:'
+SELECT
+    client_asn
+,   COUNT(*) as count
+FROM r
+WHERE
+    url_path LIKE '%.php'
+OR  url_path LIKE '/wp-%'
+GROUP BY client_asn
+ORDER BY count DESC;
+
