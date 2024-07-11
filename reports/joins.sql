@@ -4,7 +4,7 @@ SELECT
 ,   requests.asn as client_asn
 ,   requests.cache_state as cache_state
 ,   requests.response_bytes as size
-,   requests.request_start_time as time
+,   requests.request_start_time as time -- in RFC3339 format
 ,   requests.response_duration as duration
 ,   paths.path as url_path
 ,   referers.referer as referer
@@ -24,7 +24,9 @@ WHERE reqs.user_agent NOT LIKE "%blackbox%";
 -- Just the last week
 CREATE TEMP TABLE r AS
 SELECT * FROM alltime
-WHERE time >= (unixepoch("now") - (60 * 60 * 24 * 7));
-
-
+WHERE time > datetime("now", "-7 days");
+-- The above is not quite right; we have a T in the database
+-- (in older entries) but this doesn't.
+-- Fixed by having newer entries run via datetime(), so everything is
+-- canonicalized to sqlite's version.
 

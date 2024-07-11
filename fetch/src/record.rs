@@ -230,7 +230,7 @@ INSERT INTO requests (
 , :response_status
 , :response_bytes
 , :response_duration
-, :request_start_time
+, datetime(:request_start_time)
 , ( SELECT id FROM paths WHERE path = :url_path)
 , ( SELECT id FROM referers WHERE referer = :referer)
 , ( SELECT id FROM user_agents WHERE user_agent = :user_agent)
