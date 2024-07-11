@@ -66,7 +66,7 @@ impl Cruncher {
         rt.block_on(async move {
             let mut ok = 0;
             let mut err = 0;
-            let cruncher = cruncher::Cruncher::new(Path::new("quarantine/gcs.db"))?;
+            let cruncher = cruncher::Cruncher::new(&self.database)?;
             while let Some(log_set) = log_sets.recv().await {
                 let log_set = log_set.context("got error in streaming log sets")?;
                 tracing::info!("processing log set {}", &log_set.name);
