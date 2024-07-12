@@ -23,7 +23,7 @@ fn main() {
         // this is just a memory limit. And we have a lot of memory.
         concurrency: 1024,
         // Not convinced I'm not losing logs to this, so far.
-        cleanup: false,
+        cleanup: true,
     }
     .crunch(&rt)
     .unwrap()
