@@ -40,6 +40,11 @@ CREATE TABLE IF NOT EXISTS requests (
 , FOREIGN KEY(url_path) REFERENCES paths(id)
 , FOREIGN KEY(referer) REFERENCES referers(id)
 , FOREIGN KEY(user_agent) REFERENCES user_agents(id)
+, FOREIGN KEY(asn) REFERENCES autonomous_systems(asn)
 ) STRICT;
 
-
+CREATE TABLE IF NOT EXISTS autonomous_systems(
+  asn INTEGER PRIMARY KEY UNIQUE NOT NULL
+, name TEXT NULL
+, droplist TEXT NULL
+);

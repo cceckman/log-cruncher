@@ -66,7 +66,7 @@ impl Cruncher {
         rt.block_on(async move {
             let mut ok = 0;
             let mut err = 0;
-            let cruncher = cruncher::Cruncher::new(Path::new("quarantine/gcs.db"))?;
+            let cruncher = cruncher::Cruncher::new(&self.database)?;
             while let Some(log_set) = log_sets.recv().await {
                 let log_set = log_set.context("got error in streaming log sets")?;
                 tracing::info!("processing log set {}", &log_set.name);
@@ -89,6 +89,11 @@ impl Cruncher {
                 }
             }
             tracing::info!("crunched {} logsets: {} ok, {} errors", ok + err, ok, err);
+            if let Err(err) = cruncher.asn_catchup().await {
+                tracing::error!("errors in updating ASN table: {}", err);
+            } else {
+                tracing::info!("ASN table up to date");
+            }
             Ok(())
         })
     }

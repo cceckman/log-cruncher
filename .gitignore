@@ -2,7 +2,10 @@
 **/target/
 *.db
 quarantine/
-
+.redo/
+**/.redo
+**.did
+**.tmp
 
 
 # Added by cargo
