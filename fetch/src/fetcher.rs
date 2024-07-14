@@ -112,6 +112,7 @@ impl Fetcher {
     }
 
     async fn fetch_one(self: Arc<Self>, path: &str) -> anyhow::Result<LogSet<LogEntry>> {
+        tracing::info!("reading object: {path}");
         let rd = self
             .operator
             .reader(path)
@@ -126,6 +127,7 @@ impl Fetcher {
             data: data.to_vec(),
             source: self,
         };
+        tracing::info!("downloaded, now parsing: {path}");
         bytes.try_into()
     }
 
