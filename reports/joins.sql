@@ -1,6 +1,9 @@
-CREATE TEMP TABLE reqs AS
+CREATE TEMP VIEW reqs AS
 SELECT
     requests.response_status as status
+,   requests.client_ip as client_ip
+,   requests.ipv6 as ipv6
+,   requests.http2 as http2
 ,   requests.asn as client_asn
 ,   autonomous_systems.name as asn_name
 ,   requests.cache_state as cache_state
@@ -19,12 +22,12 @@ FROM
 ;
 
 -- and without.
-CREATE TEMP TABLE alltime AS
+CREATE TEMP VIEW alltime AS
 SELECT * FROM reqs
 WHERE reqs.user_agent NOT LIKE "%blackbox%";
 
 -- Just the last week
-CREATE TEMP TABLE r AS
+CREATE TEMP VIEW r AS
 SELECT * FROM alltime
 WHERE time > datetime("now", "-7 days");
 -- The above is not quite right; we have a T in the database
