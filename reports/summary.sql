@@ -42,9 +42,10 @@ LIMIT 20;
 
 .print ''
 .print 'Top errors:'
-SELECT r.status, substr(r.url_path, 0, 70) as top_articles, COUNT(*) as count
+SELECT r.status, substr(r.url_path, 0, 70) as top_errors, COUNT(*) as count
 FROM r
 WHERE r.status >= 400
+LIMIT 20
 -- ...ignoring common vulnerability scanners:
     AND NOT r.url_path LIKE '/wp%'
     AND NOT r.url_path LIKE '%.php'
@@ -62,5 +63,6 @@ WHERE
     url_path LIKE '%.php'
 OR  url_path LIKE '/wp-%'
 GROUP BY client_asn
-ORDER BY count DESC;
+ORDER BY count DESC
+LIMIT 20;
 
