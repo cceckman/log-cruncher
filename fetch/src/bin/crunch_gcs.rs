@@ -25,7 +25,8 @@ fn main() {
         nix::sys::resource::getrlimit(nix::sys::resource::Resource::RLIMIT_NOFILE)
             .expect("could not query FD limit");
     tracing::debug!("FD limit of {soft_fd_limit} (soft) / {hard_fd_limit} (hard)");
-    let concurrency: usize = max(1, min(soft_fd_limit.saturating_sub(100), 1024))
+    // We artificially limit this, as I've been getting errors.
+    let concurrency: usize = max(1, min(soft_fd_limit.saturating_sub(100), 128))
         .try_into()
         .expect("could not fit concurrency limit into usize");
 
