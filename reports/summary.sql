@@ -45,12 +45,12 @@ LIMIT 20;
 SELECT r.status, substr(r.url_path, 0, 70) as top_errors, COUNT(*) as count
 FROM r
 WHERE r.status >= 400
-LIMIT 20
 -- ...ignoring common vulnerability scanners:
     AND NOT r.url_path LIKE '/wp%'
     AND NOT r.url_path LIKE '%.php'
 GROUP BY r.status, r.url_path
-ORDER BY count DESC;
+ORDER BY count DESC
+LIMIT 20;
 
 .print ''
 .print 'Top scanning ASNs:'
