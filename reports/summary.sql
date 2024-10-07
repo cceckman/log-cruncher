@@ -1,7 +1,7 @@
 
 .read joins.sql
 
-SELECT COUNT(*) as traffic FROM r;
+.print 'From the last week...'
 
 .print ''
 .print 'Top articles:'
@@ -30,7 +30,7 @@ SELECT top_articles, count, date FROM (
     WINDOW win1 AS (PARTITION BY date ORDER BY count DESC)
 )
 WHERE url_rank <= 3
-ORDER BY date, count DESC;
+ORDER BY date DESC, count DESC;
 
 .print ''
 .print 'Top referers:'
