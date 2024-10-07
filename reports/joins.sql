@@ -32,7 +32,10 @@ WHERE user_agent NOT LIKE "%blackbox%";
 -- ...and without spam traffic, where we can get rid of it.
 CREATE TEMP VIEW alltime AS
 SELECT * FROM alltime_allreq
-WHERE status != 404;
+WHERE
+    status != 404
+AND user_agent NOT LIKE 'Mozlila%'
+;
 
 -- Just the last week
 CREATE TEMP VIEW r AS
