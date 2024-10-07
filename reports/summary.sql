@@ -1,14 +1,23 @@
 
 .read joins.sql
 
+
 .print 'From the last week...'
 
 .print ''
-.print 'Top articles:'
-SELECT substr(r.url_path, 0, 70) as top_articles, COUNT(*) as count
+SELECT COUNT(*) AS non_404_traffic FROM r;
+
+.print ''
+SELECT COUNT(*) AS article_views
 FROM r
 WHERE r.url_path LIKE "%/writing/%/"
-GROUP BY r.url_path
+   OR r.url_path LIKE "%/reading/%";
+
+.print ''
+.print 'Top articles:'
+SELECT substr(url_path, 0, 70) as top_articles, COUNT(*) as count
+FROM recent_articles
+GROUP BY url_path
 ORDER BY count DESC
 LIMIT 20;
 
@@ -17,11 +26,10 @@ LIMIT 20;
 WITH counts_by_date AS (
     -- Sub-select: count of article-visits by date
     SELECT 
-        substr(r.url_path, 0, 70) as top_articles
+        substr(url_path, 0, 70) as top_articles
     ,   COUNT(*) as count
     ,   date
-    FROM r
-    WHERE r.url_path LIKE "%/writing/%/"
+    FROM recent_articles
     GROUP BY date, url_path
 )
 SELECT top_articles, count, date FROM (
@@ -31,6 +39,15 @@ SELECT top_articles, count, date FROM (
 )
 WHERE url_rank <= 3
 ORDER BY date DESC, count DESC;
+
+.print ''
+.print 'Top pages:'
+SELECT substr(r.url_path, 0, 70) as top_page, COUNT(*) as count
+FROM r
+WHERE r.url_path LIKE '%/'
+GROUP BY r.url_path
+ORDER BY count DESC
+LIMIT 20;
 
 .print ''
 .print 'Top referers:'
@@ -51,16 +68,6 @@ FROM r
 GROUP BY r.user_agent
 ORDER BY count DESC
 LIMIT 20;
-
-.print ''
-.print 'Top pages:'
-SELECT substr(r.url_path, 0, 70) as top_page, COUNT(*) as count
-FROM r
-GROUP BY r.url_path
-ORDER BY count DESC
-LIMIT 20;
-
-
 
 .print ''
 .print 'Top errors:'

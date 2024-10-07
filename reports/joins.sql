@@ -24,10 +24,12 @@ FROM
     LEFT JOIN autonomous_systems ON requests.asn = autonomous_systems.asn
 ;
 
--- without blackbox probes...
+-- without blackbox probes / my own link checking...
 CREATE TEMP VIEW alltime_allreq AS
 SELECT * FROM reqs
-WHERE user_agent NOT LIKE "%blackbox%";
+WHERE user_agent NOT LIKE "%blackbox%"
+  AND user_agent NOT LIKE "%lychee%"
+;
 
 -- ...and without spam traffic, where we can get rid of it.
 CREATE TEMP VIEW alltime AS
@@ -41,6 +43,16 @@ AND user_agent NOT LIKE 'Mozlila%'
 CREATE TEMP VIEW r AS
 SELECT * FROM alltime
 WHERE time > datetime("now", "-7 days");
+
+CREATE TEMP VIEW recent_articles AS
+SELECT * FROM r
+WHERE r.url_path LIKE "%/writing/%/"
+   OR r.url_path LIKE "%/reading/%"
+   AND r.url_path NOT LIKE "%.xml"
+;
+
+
+
 -- The above is not quite right; we have a T in the database
 -- (in older entries) but this doesn't.
 -- Fixed by having newer entries run via datetime(), so everything is
